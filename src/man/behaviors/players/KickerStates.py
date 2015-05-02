@@ -38,3 +38,24 @@ def kick(player):
 @superState('gameControllerResponder')
 def fallen(player):
     return player.stay()
+
+# Fine with wobble
+# 4
+
+# Fall forward early
+# 1
+
+# Fall right early 
+# 7
+
+# Hard hit toe
+# 3
+
+# Fall Left
+# 4
+
+# Fall back late
+# 2
+
+# Fall right late 
+# 4
