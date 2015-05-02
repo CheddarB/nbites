@@ -435,7 +435,7 @@ class KickDecider(object):
     ### HIGH LEVEL PLANNERS ###
     def attacker(self):
         self.brain.player.motionKick = False
-        return kicks.LEFT_BIG_KICK
+        return kicks.LEFT_STRAIGHT_KICK
         frontKicks = self.frontKicksOrbitIfSmall()
         if frontKicks: 
             return frontKicks
