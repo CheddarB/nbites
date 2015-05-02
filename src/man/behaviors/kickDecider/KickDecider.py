@@ -1,4 +1,5 @@
 import kicks
+from .. import SweetMoves
 import KickDeciderConstants as constants
 import noggin_constants as nogginC
 from objects import Location
@@ -433,6 +434,8 @@ class KickDecider(object):
 
     ### HIGH LEVEL PLANNERS ###
     def attacker(self):
+        self.brain.player.motionKick = False
+        return kicks.LEFT_BIG_KICK
         frontKicks = self.frontKicksOrbitIfSmall()
         if frontKicks: 
             return frontKicks

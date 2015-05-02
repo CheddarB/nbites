@@ -63,13 +63,13 @@ RIGHT_SHORT_STRAIGHT_KICK = Kick("R_Short_Straight",
                                  dist = 300,
                                  move=SweetMoves.RIGHT_SHORT_STRAIGHT_KICK)
 
-LEFT_BIG_KICK =  Kick("L_Big_Straight", 
-                      x = 14.8, y =  4.5,
-                      dist = 500,
+LEFT_BIG_KICK =  Kick("L_Big_Kick", 
+                      x = 16, y =  3.7,
+                      dist = 2500,
                       move=SweetMoves.LEFT_BIG_KICK)
 RIGHT_BIG_KICK = Kick("R_Big_Straight", 
-                      x = 14.8, y = -4.5,
-                      dist = 500,
+                      x = 16, y = -3.7,
+                      dist = 2500,
                       move=SweetMoves.RIGHT_BIG_KICK)
 
 LEFT_SIDE_KICK =  Kick("L_Side", 
