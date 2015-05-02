@@ -1025,6 +1025,11 @@ LEFT_SHORT_BACK_KICK = (
 
 RIGHT_SHORT_BACK_KICK =  mirrorMove(LEFT_SHORT_BACK_KICK)
 
+# ((LShoulderPitch, LShoulderRoll, LElbowYaw, LElbowRoll),
+#          (LHipYawPitch, LHipRoll, LHipPitch, LKneePitch, LAnklePitch, LAnkleRoll),
+#          (RHipYawPitch, RHipRoll, RHipPitch, RKneePitch, RAnklePitch, RAnkleRoll),
+#          (RShoulderPitch, RShoulderRoll, RElbowYaw, RElbowRoll)
+
 LEFT_BIG_KICK = (
 
     #Raise stable arms
@@ -1042,39 +1047,50 @@ LEFT_BIG_KICK = (
      0.6,1, stiff.NORMAL_STIFFNESSES),
 
     #Lift left leg
-    ((65.2, 70.8, -52.5, -44.3),
-     (0.,15.,-55.,85.,0,-20.),
-     (0.,11,-20.,16.,-8.,-18.),
-     (80.,-40.,50.,70.),
+    ((94.0, 62.8, -48.3, -44.9),
+     (0.,15.,-55.,105.,0,-20.),
+     (0.,11,-20.,16.,-8.,-15.),
+     (101.3, -39.1, 23.1, 67.7),
      0.5,0, stiff.NORMAL_STIFFNESSES),
 
     #Cock left leg
-    ((20.,40.,0.,0.),
+    ((65.4, 40.0, 2.5, -15.0),
     (0.,15.,-32.,120.,0.,-20.),
     (0.,11.,-22.,16.,-8.,-18.),
-    (100.,-40.,0.,0.),
+    (83.6, -38.2, 0.5, 11.8),
      0.6,0, stiff.NORMAL_STIFFNESSES),
-
-    # #Kick left leg
+    #Cock left leg
+    ((65.4, 40.0, 2.5, -15.0),
+    (0.,15.,-32.,120.,0.,-20.),
+    (0.,11.,-22.,16.,-8.,-18.),
+    (83.6, -38.2, 0.5, 11.8),
+    30.6,0, stiff.NORMAL_STIFFNESSES),
+    #Cock left leg
+    ((65.4, 40.0, 2.5, -15.0),
+    (0.,15.,-32.,120.,0.,-20.),
+    (0.,11.,-22.,16.,-8.,-18.),
+    (83.6, -38.2, 0.5, 11.8),
+    30.6,0, stiff.NORMAL_STIFFNESSES),
+   
+# OLD
+    # Kick and lessen right roll
     # ((50.,40.,0.,0.),
     #  (0.,15.,-80.,60.,-5.,-20.),
-    #  (0.,11.,-22.,30.,-8.,-18.),
+    #  (0.,1.,-22.,30.,-8.,-18.),
     #  (20.,-40.,0.,0.),
     #  0.2,0, stiff.LEFT_FAR_KICK_STIFFNESSES),
 
-    # lessen right roll
-    ((50.,40.,0.,0.),
-     (0.,15.,-80.,60.,-5.,-20.),
-     (0.,1.,-22.,30.,-8.,-18.),
-     (20.,-40.,0.,0.),
-     0.2,0, stiff.LEFT_FAR_KICK_STIFFNESSES),
+#NEW
+    # Kick
+    ((68.9, 46.8, 2.4, -16.7),
+    (2.1, 12.6, -85.6, 64.5, -16.1, -8.7),
+    (2.1, 20.3, -28.9, 17.2, -7.6, -19.9),
+    (72.2, -31.5, -0.6, 11.2)
 
-     # # move foot down
-     # ((65.2, 8.9, -0.2, -1.5),
-     #  (-4.5, 4.6, -36.2, 34.0, -7.8, -6.1),
-     #  (0.0, 6.2, -35.3, 37.6, -12.9, -6.0),
-     #  (62.4, -6.6, 0.2, 2.5),
-     #  0.6,0, stiff.NORMAL_STIFFNESSES),
+
+      0.2, 0, stiff.LEFT_FAR_KICK_STIFFNESSES),
+
+
 
      # lean back more
      ((65.2, 8.9, -0.2, -1.5),
