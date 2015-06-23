@@ -27,6 +27,7 @@ public:
     portals::InPortal<messages::YUVImage> bottomIn;
     portals::InPortal<messages::JointAngles> jointsIn;
     portals::InPortal<messages::InertialState> inertsIn;
+    portals::InPortal<messages::PositionHeadCommand> panRateIn;
 
     portals::OutPortal<messages::FieldLines> linesOut;
     portals::OutPortal<messages::VisionBall> ballOut;
@@ -83,6 +84,7 @@ private:
 
     nblog::SExpr* calibrationLisp;
     size_t image_index;
+    double pr;
 };
 
 }

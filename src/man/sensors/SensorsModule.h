@@ -65,7 +65,7 @@ public:
     portals::OutPortal<messages::FSR>             fsrOutput_;
     portals::OutPortal<messages::BatteryState>    batteryOutput_;
     portals::OutPortal<messages::StiffStatus>     stiffStatusOutput_;
-    portals::OutPortal<messages::PositionHeadCommand> headSpeedOutput_;
+    portals::OutPortal<messages::PositionHeadCommand> panRateOutput_;
 
 private:
     /*
@@ -146,7 +146,10 @@ private:
      */
     void updateStiffMessage();
 
-    void updateHeadSpeed();
+    /**
+     * @breif Updates the Head Pan Rate message
+     */
+    void updatePanRateMessage();
 
     /**
      * @brief The main run routine, primarily updates sensor

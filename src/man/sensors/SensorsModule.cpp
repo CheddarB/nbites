@@ -17,7 +17,7 @@ SensorsModule::SensorsModule(boost::shared_ptr<AL::ALBroker> broker)
       fsrOutput_(base()),
       batteryOutput_(base()),
       stiffStatusOutput_(base()),
-      headSpeedOutput_(base()),
+      panRateOutput_(base()),
       broker_(broker),
       fastMemoryAccess_(new AL::ALMemoryFastAccess()),
       sensorValues_(NUM_SENSOR_VALUES),
@@ -222,7 +222,7 @@ void SensorsModule::updateSensorValues()
     updateFSRMessage();
     updateBatteryMessage();
     updateStiffMessage();
-    updateHeadSpeed();
+    updatePanRateMessage();
 
     // std::cout << "SensorsModule : Sensor values " << std::endl;
     // for(int i = 0; i < NUM_SENSOR_VALUES; ++i)
@@ -461,7 +461,7 @@ void SensorsModule::updateStiffMessage()
     stiffStatusOutput_.setMessage(stiffMessage);
 }
 
-void SensorsModule::updateHeadSpeed()
+void SensorsModule::updatePanRateMessage()
 {
     float dPitch = sensorValues_[HeadPitch] - lastHeadPitch;
     float pitchSpeed = dPitch/FRAME_TIME;
@@ -471,12 +471,12 @@ void SensorsModule::updateHeadSpeed()
     float yawSpeed = dYaw/FRAME_TIME;
     lastHeadYaw = sensorValues_[HeadYaw];
 
-    portals::Message<messages::PositionHeadCommand> headSpeedMessage(0);
+    portals::Message<messages::PositionHeadCommand> panRateMessage(0);
 
-    headSpeedMessage.get()->set_curr_speed_pitch(pitchSpeed);
-    headSpeedMessage.get()->set_curr_speed_yaw(yawSpeed);
+    panRateMessage.get()->set_curr_speed_pitch(pitchSpeed);
+    panRateMessage.get()->set_curr_speed_yaw(yawSpeed);
 
-    headSpeedOutput_.setMessage(headSpeedMessage);
+    panRateOutput_.setMessage(panRateMessage);
 }
 
 // Helper method so that we can print out a Sweet Moves joint angle

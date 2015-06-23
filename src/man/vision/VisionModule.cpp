@@ -22,6 +22,7 @@ VisionModule::VisionModule(int wd, int ht, std::string robotName)
       topIn(),
       bottomIn(),
       jointsIn(),
+      panRateIn(),
       linesOut(base()),
       ballOut(base()),
       ballOn(false),
@@ -101,11 +102,14 @@ void VisionModule::run_()
     bottomIn.latch();
     jointsIn.latch();
     inertsIn.latch();
+    panRateIn.latch();
 
     // Setup
     std::vector<const messages::YUVImage*> images { &topIn.message(),
                                                     &bottomIn.message() };
     bool ballDetected = false;
+    pr = (double)panRateIn.message().curr_speed_yaw();
+
 
     // Loop over top and bottom image and run line detection system
     for (int i = 0; i < images.size(); i++) {
@@ -124,6 +128,15 @@ void VisionModule::run_()
         ImageLiteU8 greenImage(frontEnd[i]->greenImage());
         ImageLiteU8 orangeImage(frontEnd[i]->orangeImage());
 
+        // Calculate pan rate. Must be in radians/pixel
+        std::cout << "PanRate before: " << pr << std::endl;
+        
+        std::cout << "Y pix per frame: " << yImage.height();
+        // TODO: get frames/second form environment
+        // TODO: determine whether to negate
+
+        std::cout << "PanRate after: " << pr << std::endl;
+
         // Calculate kinematics and adjust homography
         if (jointsIn.message().has_head_yaw()) {
             kinematics[i]->joints(jointsIn.message());
@@ -132,6 +145,7 @@ void VisionModule::run_()
             homography[i]->wz0(kinematics[i]->wz0());
             homography[i]->roll(calibrationParams[i]->getRoll());
             homography[i]->tilt(kinematics[i]->tilt() + calibrationParams[i]->getTilt());
+            homography[i]->panRate(pr);
 #ifndef OFFLINE
             homography[i]->azimuth(kinematics[i]->azimuth());
 #endif
@@ -156,26 +170,11 @@ void VisionModule::run_()
         if (!ballDetected) {
             ballDetected = ballDetector[i]->findBall(orangeImage, kinematics[i]->wz0());
         }
-    }
 
-// TODO move to logImage
 #ifdef USE_LOGGING
-    if (getenv("LOG_THIS") != NULL) {
-        if (strcmp(getenv("LOG_THIS"), std::string("top").c_str()) == 0) {
-            logImage(0);
-            setenv("LOG_THIS", "false", 1);
-            std::cerr << "pCal logging top log\n";
-        } else if (strcmp(getenv("LOG_THIS"), std::string("bottom").c_str()) == 0) {
-            logImage(1);
-            setenv("LOG_THIS", "false", 1);
-            std::cerr << "pCal logging bot log\n";
-        }// else
-           // std::cerr << "N "; 
-    } else {
-        logImage(0);
-        logImage(1);
-    }
+        logImage(i);
 #endif
+    }
 
     // Send messages on outportals
     sendLinesOut();
@@ -185,6 +184,25 @@ void VisionModule::run_()
 
 void VisionModule::logImage(int i) 
 {
+    if (getenv("LOG_THIS") != NULL) {
+        if (strcmp(getenv("LOG_THIS"), std::string("top").c_str()) == 0) {
+            if (i != 0)
+                return;
+            else {
+                setenv("LOG_THIS", "false", 1);
+                std::cerr << "pCal logging top log\n";
+            }
+        } else if (strcmp(getenv("LOG_THIS"), std::string("bottom").c_str()) == 0) {   
+            if (i != 1)
+                return;
+            else {
+                setenv("LOG_THIS", "false", 1);
+                std::cerr << "pCal logging bot log\n";
+            }
+        } else 
+            return;
+    }
+
     std::string t = "true";
 
     if (control::flags[control::tripoint]) {
@@ -272,6 +290,7 @@ void VisionModule::logImage(int i)
 
         nblog::SExpr cal("CalibrationParams", "tripoint", clock(), image_index, 0);
         cal.append(nblog::SExpr(image_from, calibrationParams[i]->getRoll(), calibrationParams[i]->getTilt()));
+        cal.append(nblog::SExpr("PanRate", pr));
         contents.push_back(cal);
 
         nblog::NBLog(NBL_IMAGE_BUFFER, "tripoint", contents, im_buf);

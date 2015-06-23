@@ -72,6 +72,16 @@ int Vision_func() {
         joints.ParseFromArray((void *) ptToJoints, numBytes[2]);
     }
 
+    // Read rate of head pan from log and set to message if it exists
+    messages::PositionHeadCommand phc;
+    vec = copy->tree().recursiveFind("PanRate");
+    if (vec.size() != 0) {
+        SExpr *s = vec.at(vec.size()-1)->get(1);
+        if (s != NULL) {
+            phc.set_curr_speed_yaw(s->valueAsDouble());
+        }
+    }
+
     // Empty Images to pass to vision module, top & bottom
     messages::YUVImage realImage(buf, width, height, width);
     messages::YUVImage emptyImage(width, height);
@@ -80,6 +90,7 @@ int Vision_func() {
     portals::Message<messages::YUVImage> rImageMessage(&realImage);
     portals::Message<messages::YUVImage> eImageMessage(&emptyImage);
     portals::Message<messages::JointAngles> jointsMessage(&joints);
+    portals::Message<messages::PositionHeadCommand> panMessage(&phc);
 
     // Look for robot name and pass to module if found
     SExpr* robotName = args[0]->tree().find("from_address");
@@ -99,6 +110,7 @@ int Vision_func() {
         module.bottomIn.setMessage(rImageMessage);
     }
     module.jointsIn.setMessage(jointsMessage);
+    module.panRateIn.setMessage(panMessage);
 
     // If log includes color parameters in description, have module use those
     SExpr* colParams = args[0]->tree().find("Params");
@@ -428,14 +440,26 @@ int CameraCalibration_func() {
             }
         }
         
+        // Read rate of head pan from log and set to message if it exists
+        messages::PositionHeadCommand phc;
+        vec = l->tree().recursiveFind("PanRate");
+        if (vec.size() != 0) {
+            SExpr *s = vec.at(vec.size()-1)->get(1);
+            if (s != NULL) {
+                phc.set_curr_speed_yaw(s->valueAsDouble());
+            }
+        }
+
         // Create messages
         messages::YUVImage image(buf, width, height, width);
         portals::Message<messages::YUVImage> imageMessage(&image);
         portals::Message<messages::JointAngles> jointsMessage(&joints);
+        portals::Message<messages::PositionHeadCommand> panMessage(&phc);
 
         module.topIn.setMessage(imageMessage);
         module.bottomIn.setMessage(imageMessage);
         module.jointsIn.setMessage(jointsMessage);
+        module.panRateIn.setMessage(panMessage);
 
         module.run();
 
