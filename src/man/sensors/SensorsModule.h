@@ -65,6 +65,7 @@ public:
     portals::OutPortal<messages::FSR>             fsrOutput_;
     portals::OutPortal<messages::BatteryState>    batteryOutput_;
     portals::OutPortal<messages::StiffStatus>     stiffStatusOutput_;
+    portals::OutPortal<messages::PositionHeadCommand> headSpeedOutput_;
 
 private:
     /*
@@ -145,6 +146,8 @@ private:
      */
     void updateStiffMessage();
 
+    void updateHeadSpeed();
+
     /**
      * @brief The main run routine, primarily updates sensor
      *        readings.
@@ -157,6 +160,10 @@ private:
     std::vector<std::string>                  sensorKeys_;
 
     bool lastPrint;
+
+    float FRAME_TIME;
+    float lastHeadPitch;
+    float lastHeadYaw;
 };
 
 } // namespace sensors
