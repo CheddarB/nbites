@@ -43,7 +43,7 @@ VisionModule::VisionModule(int wd, int ht, std::string robotName)
     #endif
 
     // Get SExpr from string
-    nblog::SExpr* colors = nblog::SExpr::read(getStringFromTxtFile(colorPath));
+    colorLisp = nblog::SExpr::read(getStringFromTxtFile(colorPath));
     calibrationLisp = nblog::SExpr::read(getStringFromTxtFile(calibrationPath));
 
     // Set module pointers for top then bottom images
@@ -53,7 +53,7 @@ VisionModule::VisionModule(int wd, int ht, std::string robotName)
     //      constructors in the case of C-style arrays, limitation theoretically
     //      removed in C++11.
     for (int i = 0; i < 2; i++) {
-        colorParams[i] = getColorsFromLisp(colors, i);
+        colorParams[i] = getColorsFromLisp(colorLisp, i);
         frontEnd[i] = new ImageFrontEnd();
         edgeDetector[i] = new EdgeDetector();
         edges[i] = new EdgeList(32000);
@@ -97,11 +97,13 @@ VisionModule::~VisionModule()
         delete kinematics[i];
         delete homography[i];
         delete fieldLines[i];
+        delete ballDetector[i];
         delete boxDetector[i];
         delete cornerDetector[i];
         delete centerCircleDetector[i];
-        delete ballDetector[i];
     }
+    delete colorLisp;
+    delete calibrationLisp;
 }
 
 // TODO use horizon on top image
@@ -353,6 +355,8 @@ const std::string VisionModule::getStringFromTxtFile(std::string path)
     std::string sexpText(buff);
 
     textFile.close();
+    delete[] buff;
+    
     return (const std::string)sexpText;
 }
 

@@ -84,18 +84,16 @@ private:
     BallDetector* ballDetector[2];
 
     bool centerCircleDetected;
-
     bool blackStar_;
-    
-    // Lisp tree with color params saved
-    nblog::SExpr colors;
 
     // Tracking ball stuff
     bool ballOn;
     int ballOnCount;
     int ballOffCount;
 
+    nblog::SExpr* colorLisp;
     nblog::SExpr* calibrationLisp;
+
     size_t image_index;
 
 #
