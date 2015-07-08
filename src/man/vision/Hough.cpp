@@ -632,9 +632,9 @@ bool CenterCircleDetector::getMaxBin(const std::vector<Point>& vec, double& x0, 
     }
 
 #ifdef OFFLINE
-    std::cerr << std::endl << "Center Circle at (" << x0 << "," << y0 << "). " << 
-      (double)votes * 100/(double)vec.size() << "\% of the " << 
-      vec.size() << " potentials in most populated bin" << std::endl;
+    std::cerr << std::endl << "CC with " << 
+      (double)votes * 100/(double)vec.size() << "\% of " << 
+      vec.size() << std::endl;
 #endif
 
     return true;

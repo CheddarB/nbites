@@ -100,10 +100,7 @@ public class LocSwarmView extends ViewParent implements ActionListener {
 			// Center Circle
 			// TODO: how to check on or off?
 			naoCC = naoVision.getCircle();
-			System.out.println(naoCC.getOn());
 			if (naoCC.getOn() == true) {
-				System.out.printf("CIRC AT %f,%f\n", naoCC.getX(), naoCC.getY());
-		
 				naoGeoCenterCircle = new GeoCenterCircle(
 								naoCC.getX(),
 								naoCC.getY(),

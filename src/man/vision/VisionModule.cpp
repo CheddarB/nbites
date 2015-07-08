@@ -167,7 +167,7 @@ void VisionModule::run_()
  
         // Detect center circle on top
         if (!i) centerCircleDetected = centerCircleDetector[i]->detectCenterCircle(*(rejectedEdges[i]));
- 
+
         // Pair hough lines to field lines
         fieldLines[i]->find(*(houghLines[i]), blackStar());
  
