@@ -60,7 +60,7 @@ public class LocSwarmView extends ViewParent implements ActionListener {
 			// Get vision info log (fild lines, ball, center circle) 
 			naoVision = Vision.parseFrom(log.bytesForContentItem(2));
 
-			// Fild lines
+			// Field lines
 			for(int i=0; i<naoVision.getLineCount(); i++) {
 				FieldLine curFieldLine = naoVision.getLine(i);
 				GeoLine temp = new GeoLine(
@@ -90,7 +90,6 @@ public class LocSwarmView extends ViewParent implements ActionListener {
 			// Ball
 			naoBall = naoVision.getBall();
 			if (naoBall.getOn() == true) {
-				System.out.printf("BALL AT %d,%d\n", naoBall.getX(), naoBall.getY());
 				naoGeoBall = new GeoBall(
 								naoBall.getX(),
 								naoBall.getY(),
@@ -98,12 +97,9 @@ public class LocSwarmView extends ViewParent implements ActionListener {
 			}
 
 			// Center Circle
-			// TODO: how to check on or off?
 			naoCC = naoVision.getCircle();
 			System.out.println(naoCC.getOn());
 			if (naoCC.getOn() == true) {
-				System.out.printf("CIRC AT %f,%f\n", naoCC.getX(), naoCC.getY());
-		
 				naoGeoCenterCircle = new GeoCenterCircle(
 								naoCC.getX(),
 								naoCC.getY(),

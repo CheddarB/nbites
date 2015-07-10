@@ -47,25 +47,25 @@ public class Field extends JPanel {
         							  FieldConstants.GOALBOX_DEPTH, FieldConstants.FIELD_WHITE_HEIGHT*0.45f, 
         							  FieldConstants.GOALBOX_DEPTH,FieldConstants.GOALBOX_WIDTH));
 
-        //our left goalbox
-        if(shouldFlip) { g2.setColor(Color.white); } else { g2.setColor(Color.green);}
-        g2.draw(new Line2D.Float(FieldConstants.GREEN_PAD_X, FieldConstants.MY_GOALBOX_BOTTOM_Y, 
-        						 FieldConstants.GREEN_PAD_X + FieldConstants.GOALBOX_DEPTH, FieldConstants.MY_GOALBOX_BOTTOM_Y));
-
         //our right goalbox
+        if(shouldFlip) { g2.setColor(Color.white); } else { g2.setColor(Color.green);}
+        g2.draw(new Line2D.Float(FieldConstants.GREEN_PAD_X, FieldConstants.FIELD_WHITE_HEIGHT*0.45f, 
+                              FieldConstants.GREEN_PAD_X + FieldConstants.GOALBOX_DEPTH, FieldConstants.FIELD_WHITE_HEIGHT*0.45f));
+
+        //our left goalbox
         if(shouldFlip) { g2.setColor(Color.darkGray); } else { g2.setColor(Color.yellow);}
-        g2.draw(new Line2D.Float(FieldConstants.GREEN_PAD_X, FieldConstants.MY_GOALBOX_TOP_Y, 
-        						 FieldConstants.GREEN_PAD_X + FieldConstants.GOALBOX_DEPTH, FieldConstants.MY_GOALBOX_TOP_Y));
+        g2.draw(new Line2D.Float(FieldConstants.GREEN_PAD_X, FieldConstants.FIELD_WHITE_HEIGHT*0.45f + FieldConstants.GOALBOX_WIDTH, 
+        						 FieldConstants.GREEN_PAD_X + FieldConstants.GOALBOX_DEPTH, FieldConstants.FIELD_WHITE_HEIGHT*0.45f + FieldConstants.GOALBOX_WIDTH));
 
         //their left goalbox
         if(shouldFlip) { g2.setColor(Color.yellow); } else { g2.setColor(Color.darkGray);}
-        g2.draw(new Line2D.Float(FieldConstants.FIELD_GREEN_WIDTH-FieldConstants.GREEN_PAD_X, FieldConstants.OPP_GOALBOX_BOTTOM_Y, 
-        						 FieldConstants.FIELD_GREEN_WIDTH-FieldConstants.GREEN_PAD_X-FieldConstants.GOALBOX_DEPTH, FieldConstants.OPP_GOALBOX_BOTTOM_Y));
+        g2.draw(new Line2D.Float(FieldConstants.FIELD_GREEN_WIDTH-FieldConstants.GREEN_PAD_X, FieldConstants.FIELD_WHITE_HEIGHT*0.45f, 
+        						 FieldConstants.FIELD_GREEN_WIDTH-FieldConstants.GREEN_PAD_X-FieldConstants.GOALBOX_DEPTH, FieldConstants.FIELD_WHITE_HEIGHT*0.45f));
 
-        //their right goalbox
+            //their right goalbox
         if(shouldFlip) { g2.setColor(Color.green); } else { g2.setColor(Color.white);}
-        g2.draw(new Line2D.Float(FieldConstants.FIELD_GREEN_WIDTH-FieldConstants.GREEN_PAD_X, FieldConstants.OPP_GOALBOX_TOP_Y,
-        						 FieldConstants.FIELD_GREEN_WIDTH-FieldConstants.GREEN_PAD_X-FieldConstants.GOALBOX_DEPTH, FieldConstants.OPP_GOALBOX_TOP_Y));
+        g2.draw(new Line2D.Float(FieldConstants.FIELD_GREEN_WIDTH-FieldConstants.GREEN_PAD_X, FieldConstants.FIELD_WHITE_HEIGHT*0.45f + FieldConstants.GOALBOX_WIDTH,
+        						 FieldConstants.FIELD_GREEN_WIDTH-FieldConstants.GREEN_PAD_X-FieldConstants.GOALBOX_DEPTH, FieldConstants.FIELD_WHITE_HEIGHT*0.45f + FieldConstants.GOALBOX_WIDTH));
 
         //our end line
         if(shouldFlip) { g2.setColor(Color.red); } else { g2.setColor(Color.blue);}

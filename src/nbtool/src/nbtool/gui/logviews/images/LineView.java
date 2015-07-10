@@ -183,6 +183,9 @@ public class LineView extends ViewParent implements IOFirstResponder {
                 x2 = (int) Math.round(x0 + startSize*fcEP1 * Math.sin(fcT));
                 y2 = (int) Math.round(y0 + startSize*fcEP1 * Math.cos(fcT));
 
+                // Uncomment to enable scaling. Change int startSize to 3 or so to have world view
+                //  large scale (close up) if possible. Disabled now for center cirlce potential scale
+
                 //Scale down if a line is outside the view, but not if its too far (false field line)
                 // if (y1 < 0 && y1 > -2000) {
                 //     resize = Math.min(resize, (double)fieldh/(-y1 + fieldh));
@@ -191,13 +194,6 @@ public class LineView extends ViewParent implements IOFirstResponder {
                 //     resize = Math.min(resize, (double)fieldh/(-y2 + fieldh));
                 // }
 
-                // // TODO: Don't draw it if it's way out
-                // if (y1 < -3500) {
-                //     lines.set(i+4, -1.0);
-                // }
-                // if (y2 < -3500) {
-                //     lines.set(i+4, -1.0);
-                // }
             }
             
             List<Double> drawn = new ArrayList<Double>();
