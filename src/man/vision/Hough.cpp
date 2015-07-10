@@ -755,12 +755,24 @@ void FieldLineList::classify(GoalboxDetector& boxDetector,
       }
     }
 
-    // Set midline and adjust CC, or discard CC if no close line
+    // Set midlinea, adjust CC, and discard false lines, or discard CC if no close line
     if (fabs(minDist) < 30) {
       midline->id(LineID::Midline);
       midlineFound = true;
       circleDetector.adjustCC(-minDist * cos(midHoughInner->field().t()),
                               -minDist * sin(midHoughInner->field().t()));
+
+      // Erase all short field lines near center cirlce
+      int startSize = size();
+      int i = 0;
+      while (i < startSize) {
+        FieldLine* fl = &(*this)[i];
+        // Loop through lines and it is likely to be a center circle false line, erase it
+        if (fl->id() != LineID::Midline && fl->maxLength() < 50 &&
+            fabs((*fl)[0].field().pDist(circleDetector.x(), circleDetector.y())) < 100)
+          this->erase(this->begin() + i);
+        i++;
+      }
     } else {
       circleDetector.on(false);
     }

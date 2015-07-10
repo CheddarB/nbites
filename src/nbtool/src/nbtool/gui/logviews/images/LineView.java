@@ -130,6 +130,8 @@ public class LineView extends ViewParent implements IOFirstResponder {
             g.setColor(Color.lightGray);
             g.fillOval(fxc - 30, fyc - 20, 60, 40);
 
+            System.out.printf("\nTOOL RECIEVED %d HOUGH LINES\n\n", lines.size() / 10);
+
             // Get hough line data from buffer
             for (int i = 0; i < lines.size(); i += 10) {
                 double icR = lines.get(i);
