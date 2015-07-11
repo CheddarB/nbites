@@ -521,6 +521,7 @@ void CenterCircleDetector::set()
 
 bool CenterCircleDetector::detectCenterCircle(EdgeList& edges, Field& field)
 {
+  _discards = edges.getDiscards();
   on(findPotentialsAndCluster(edges, _ccx, _ccy) && onField(field));
   return (on());
 }
@@ -537,16 +538,16 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
   
   // Fill set of little bins
   int bins[bcSq]; 
-  
   std::fill(bins, bins + bcSq, 0);
 
   AngleBinsIterator<Edge> abi(edges);
   for (Edge* e = *abi; e; e = *++abi) {
-    double distance = e->field().x() * e->field().x() + e->field().y() * e->field().y();
-    if (e->field().y() >= 0 && distance < maxEdgeDistanceSquared) {
+    double distance = e->field()->x() * e->field()->x() + e->field()->y() * e->field()->y();
+    if (!inDiscards(e->field()->t()) && e->field()->y() >= 0 && distance < maxEdgeDistanceSquared) {
+      
+      p1 = Point(e->field()->x() + ccr*sin(e->field()->t()), e->field()->y() - ccr*cos(e->field()->t()));
+      p2 = Point(e->field()->x() - ccr*sin(e->field()->t()), e->field()->y() + ccr*cos(e->field()->t()));
       count += 2;
-      p1 = Point(e->field().x() + ccr*sin(e->field().t()), e->field().y() - ccr*cos(e->field().t()));
-      p2 = Point(e->field().x() - ccr*sin(e->field().t()), e->field().y() + ccr*cos(e->field().t()));
 
 #ifdef OFFLINE
       _potentials.push_back(p1);
@@ -578,7 +579,7 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
   // Tally bins
   int winBin, votes = 0;
 
-  for (int i = 0; i < binCount - 1; i++) {
+  for (int i = 0; i < binCount - 1; i++)
     for (int j = 0; j < binCount - 1; j++) {
       int neighboorTally = bins[i +  j   *binCount] + bins[i+1 +  j   *binCount] +
                            bins[i + (j+1)*binCount] + bins[i+1 + (j+1)*binCount];
@@ -589,7 +590,6 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
         winBin = i + j*binCount;
       }
     }
-  }
 
   if (votes > minVotesInMaxBin * count) {
     x0 = (winBin % binCount + 1) * binWidth - xOffset;
@@ -631,6 +631,14 @@ void CenterCircleDetector::adjustCC(double x, double y)
   _ccx += x;
   _ccy += y;
   _potentials.push_back(Point(_ccx, _ccy));
+}
+
+bool CenterCircleDetector::inDiscards(double a)
+{
+  for (int i = 0; i < _discards.size(); i++)
+    if (a == _discards.at(i))
+      return true;
+  return false;
 }
 
 

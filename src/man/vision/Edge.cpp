@@ -46,7 +46,7 @@ void Edge::setField(const FieldHomography& h)
   double wx, wy, dwx, dwy;
   h.fieldCoords(_x, _y, wx, wy);
   h.fieldVector(0, 0, sin(), -cos(), dwx, dwy);
-  _field = FieldEdge(wx, wy, atan2(dwy, dwx));
+  _field.set(wx, wy, atan2(dwy, dwx), true);
 }
 
 
@@ -58,10 +58,22 @@ void Edge::setField(const FieldHomography& h)
 
 void EdgeList::mapToField(const FieldHomography& h)
 {
+  int repeatThreshold = 22;  
+  double previousAngle = -M_PI/2;
+  int repeats = 0;  
+  
   AngleBinsIterator<Edge> abi(*this);
-  for (Edge* e = *abi; e; e = *++abi)
+  for (Edge* e = *abi; e; e = *++abi) {
     e->setField(h);
-
+    if (e->field()->t() == previousAngle)
+      repeats++;
+    else {
+      if (repeats >= repeatThreshold)
+        discards.push_back(previousAngle);
+      previousAngle = e->field()->t();
+      repeats = 0;
+    }
+  }
   _fx0 = -h.wx0();
   _fy0 = -h.wy0();
 }

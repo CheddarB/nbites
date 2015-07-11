@@ -11,6 +11,8 @@
 #include "Vision.h"
 #include "Homography.h"
 
+#include <vector>
+
 
 // ******************************************************
 // *                                                    *
@@ -204,17 +206,30 @@ AngleBinsIterator<T>& AngleBinsIterator<T>::operator++()
 
 class HoughLine;
 class Edge;
-class FieldEdge {
-  double data[3];
+class FieldEdge
+{
+  double _x;
+  double _y;
+  double _t;
+  bool _on;
 
 public:
-  FieldEdge(double x = 0, double y = 0, double t = 0)
+  FieldEdge()
   {
-    data[0] = x; data[1] = y; data[2] = t;
+    _x = _y = _t = _on = 0;
   }
-  double x() { return data[0]; }
-  double y() { return data[1]; }
-  double t() { return data[2]; }
+  void set(double x, double y, double t, bool on)
+  {
+    _x = x;
+    _y = y;
+    _t = t;
+    _on = on;
+  }
+  double x() { return _x; }
+  double y() { return _y; }
+  double t() { return _t; }
+  bool on() const { return this->_on; }
+  void on(bool on) { this->_on = on; }
 };
 
 class Edge : public AngleElement
@@ -224,8 +239,8 @@ class Edge : public AngleElement
 
   HoughLine* _memberOf;
   Edge* _nextMember;
-
   FieldEdge _field;
+
 
 public:
   // Default constructor leaves members uninitialized so AngleBins can allocate a large
@@ -258,7 +273,7 @@ public:
   Edge* nextMember() { return _nextMember; }
   void nextMember(Edge* e) { _nextMember = e; }
 
-  FieldEdge field() const { return _field; }
+  FieldEdge* field() { return &_field; }
 
   // Translate edge to field coordinates
   void setField(const FieldHomography& h);
@@ -271,6 +286,7 @@ class EdgeList : public AngleBins<Edge>
   EdgeList& operator=(const EdgeList&);
 
   double _fx0, _fy0;
+  std::vector<double> discards;
 
 public:
   EdgeList(int size) : AngleBins(size) {}
@@ -283,7 +299,7 @@ public:
   }
   void mapToField(const FieldHomography&);
 
-
+  std::vector<double> getDiscards() { return discards; }
   // The field coordinates of the robot at the time mapToField was called.
   double fx0() const { return _fx0; }
   double fy0() const { return _fy0; }
