@@ -127,8 +127,8 @@ VisionModule::~VisionModule()
         delete kinematics[i];
         delete homography[i];
         delete fieldLines[i];
-		delete debugImage[i];
-		delete debugSpace[i];
+        delete debugImage[i];
+        delete debugSpace[i];
         delete boxDetector[i];
         delete cornerDetector[i];
         delete centerCircleDetector[i];

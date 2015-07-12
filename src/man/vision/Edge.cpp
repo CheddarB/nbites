@@ -45,8 +45,8 @@ void EdgeList::mapToField(const FieldHomography& h)
 {
   int size = this->count();
 
-  maxEdges = 3000;
-  minEdges = 400;
+  maxEdges = 2000;
+  minEdges = 450;
 
   // Stop if there aren't enough orphan edges to get a reasonable prediction later on
   if (count() < minEdges) {
@@ -75,14 +75,13 @@ void EdgeList::mapToField(const FieldHomography& h)
   // Remove edges edges with similar angles
   // If there are more than 40 edges with the same angle, its a missed line
   for (int i = 0; i < 256; i++) {
-    if (binCount[i] > 40) {
+    if (binCount[i] > 20) {
       rejectAngles.push_back(i);
       size -= binCount[i];
       binCount[i] = 0;
     }
   }
 
-  std::cout << "SIZE = " << size << std::endl;
 
   // Don't include edges of similar angle, until we are below our threshold
   while (size > maxEdges) {
@@ -92,6 +91,7 @@ void EdgeList::mapToField(const FieldHomography& h)
         maxAngles = binCount[i];
         maxBin = i;
       }
+
     rejectAngles.push_back(maxBin);
     size -= binCount[maxBin];
     binCount[maxBin] = 0;  
@@ -99,6 +99,7 @@ void EdgeList::mapToField(const FieldHomography& h)
 
   _fx0 = -h.wx0();
   _fy0 = -h.wy0();
+
 }
 
 

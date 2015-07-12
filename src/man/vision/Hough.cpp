@@ -520,6 +520,7 @@ CenterCircleDetector::CenterCircleDetector()
 void CenterCircleDetector::set()
 {
   // Set parameters
+  minPotentials = 900;
   maxEdgeDistanceSquared = 500 * 500;       // Good practicle distance = 5m
   ccr = CENTER_CIRCLE_RADIUS;               // 75 cm
   minVotesInMaxBin = 0.18;                  // Conservative clustering theshold
@@ -576,6 +577,13 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
         bins[xbin + binCount * ybin] += 1;
 
     }
+  }
+
+  if (count < minPotentials) {
+#ifdef OFFLINE
+    std::cout << "Not enough poentials for center circle\n";
+#endif
+    return false;
   }
 
   // Tally bins
@@ -769,14 +777,29 @@ void FieldLineList::classify(GoalboxDetector& boxDetector,
       }
     }
 
-    // Set midline and adjust CC, or discard CC if no close line
-    if (fabs(minDist) < 20) {
+    // Set midlinea, adjust CC, and discard false lines, or discard CC if no close line
+    if (fabs(minDist) < 40) {
       midline->id(LineID::Midline);
       midlineFound = true;
       circleDetector.adjustCC(-minDist * cos(midHoughInner->field().t()),
                               -minDist * sin(midHoughInner->field().t()));
+
+      // Erase all short field lines near center cirlce
+      int startSize = size();
+      int i = 0;
+      while (i < startSize) {
+        FieldLine* fl = &(*this)[i];
+        // Loop through lines and it is likely to be a center circle false line, erase it
+        if (fl->id() != LineID::Midline && fl->maxLength() < 50 &&
+            fabs((*fl)[0].field().pDist(circleDetector.x(), circleDetector.y())) < 100)
+          this->erase(this->begin() + i);
+        i++;
+      }
     } else {
       circleDetector.on(false);
+#ifdef OFFLINE
+      std::cout << "Cancelling CC because no line closer than " << fabs(minDist) << ".\n";
+#endif
     }
   }
 
@@ -1222,7 +1245,7 @@ void HoughSpace::adjust(EdgeList& edges, EdgeList& rejectedEdges, HoughLineList&
 
   AngleBinsIterator<Edge> rejectABI(edges);
   for (Edge* e = *rejectABI; e; e = *++rejectABI)
- //   if (e->memberOf() == 0) 
+    if (e->memberOf() == 0) 
       rejectedEdges.add(e->x(), e->y(), e->mag(), e->angle());
     
   times[4] = timer.time32();
