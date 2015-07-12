@@ -511,7 +511,6 @@ CenterCircleDetector::CenterCircleDetector()
 void CenterCircleDetector::set()
 {
   // Set parameters
-  minPotentials = 850;
   maxEdgeDistanceSquared = 500 * 500;       // Good practicle distance = 5m
   ccr = CENTER_CIRCLE_RADIUS;               // 75 cm
   minVotesInMaxBin = 0.18;                  // Conservative clustering theshold
@@ -521,6 +520,7 @@ void CenterCircleDetector::set()
 
 bool CenterCircleDetector::detectCenterCircle(EdgeList& edges, Field& field)
 {
+  rejects = edges.getRejectedAngles();
   on(findPotentialsAndCluster(edges, _ccx, _ccy) && onField(field));
   return (on());
 }
@@ -543,7 +543,8 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
   AngleBinsIterator<Edge> abi(edges);
   for (Edge* e = *abi; e; e = *++abi) {
     double distance = e->field().x() * e->field().x() + e->field().y() * e->field().y();
-    if (e->field().y() >= 0 && distance < maxEdgeDistanceSquared) {
+    // ON_FIELD TEST CURRENTLY OFF BC BUGGY
+    if (e->field().y() >= 0 && !isInRejects(e->angle()) && distance < maxEdgeDistanceSquared) {
       count += 2;
       p1 = Point(e->field().x() + ccr*sin(e->field().t()), e->field().y() - ccr*cos(e->field().t()));
       p2 = Point(e->field().x() - ccr*sin(e->field().t()), e->field().y() + ccr*cos(e->field().t()));
@@ -566,13 +567,6 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
         bins[xbin + binCount * ybin] += 1;
 
     }
-  }
-
-  if (count < minPotentials) {
-#ifdef OFFLINE
-    std::cerr << std::endl << "Not enough potentials for center circle: " << (double)count << " potentials" << std::endl;
-#endif   
-    return false;
   }
 
   // Tally bins
@@ -611,8 +605,11 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
 }
 
 // Project 2 points from CC and check if they are on the field
+// TODO: debug and turn on
 bool CenterCircleDetector::onField(Field& field)
 {
+  return true;
+
   double y;
   if (field.onField(_ccx + fieldTestDistance, y) && _ccy + fieldTestDistance < y &&
           field.onField(_ccx - fieldTestDistance, y) && _ccy + fieldTestDistance < y) {
@@ -633,6 +630,13 @@ void CenterCircleDetector::adjustCC(double x, double y)
   _potentials.push_back(Point(_ccx, _ccy));
 }
 
+bool CenterCircleDetector::isInRejects(int a)
+{
+  for (int i = 0; i < rejects.size(); i++)
+    if (a == rejects.at(i))
+      return true;
+  return false;
+} 
 
 // **************************
 // *                        *
@@ -747,6 +751,7 @@ void FieldLineList::classify(GoalboxDetector& boxDetector,
       double qD = inner.field().qDist(circleDetector.x(), circleDetector.y());
       bool within = qD > inner.field().ep0() && qD < inner.field().ep1();
 
+
       // Check for min distance
       if (within && minDist > fabs(distToLine)) {
           midline = &fl;
@@ -756,7 +761,7 @@ void FieldLineList::classify(GoalboxDetector& boxDetector,
     }
 
     // Set midline and adjust CC, or discard CC if no close line
-    if (fabs(minDist) < 30) {
+    if (fabs(minDist) < 20) {
       midline->id(LineID::Midline);
       midlineFound = true;
       circleDetector.adjustCC(-minDist * cos(midHoughInner->field().t()),

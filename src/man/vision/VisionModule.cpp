@@ -136,7 +136,6 @@ VisionModule::~VisionModule()
     }
 }
 
-    int overrun = 0;
 // TODO use horizon on top image
 void VisionModule::run_()
 {
@@ -154,9 +153,9 @@ void VisionModule::run_()
 
 
     // Time vision module
-    double topTimes[12];
-    double bottomTimes[12];
-    double* times[2] = { topTimes, bottomTimes };
+    // double topTimes[12];
+    // double bottomTimes[12];
+    // double* times[2] = { topTimes, bottomTimes };
 
 
     // Loop over top and bottom image and run line detection system
@@ -172,7 +171,7 @@ void VisionModule::run_()
                         image->pixelAddress(0, 0));
 
 
-        HighResTimer timer;
+        // HighResTimer timer;
 
 
         // Run front end
@@ -182,7 +181,7 @@ void VisionModule::run_()
         ImageLiteU8 greenImage(frontEnd[i]->greenImage());
         ImageLiteU8 orangeImage(frontEnd[i]->orangeImage());
 
-        times[i][0] = timer.end();
+        // times[i][0] = timer.end();
 
 
         // Offset to hackily adjust tilt for high-azimuth error
@@ -203,13 +202,12 @@ void VisionModule::run_()
 #endif
         }
 
-        times[i][1] = timer.end();
-
+        // times[i][1] = timer.end();
 
         // Approximate brightness gradient
         edgeDetector[i]->gradient(yImage);
 
-        times[i][2] = timer.end();
+        // times[i][2] = timer.end();
 
 		// only calculate the field in the top camera
 		if (!i) {
@@ -226,105 +224,89 @@ void VisionModule::run_()
 			field->findGreenHorizon(hor, hor2);
 		}
 
-        times[i][3] = timer.end();
+        // times[i][3] = timer.end();
 
         // Run edge detection
         edgeDetector[i]->edgeDetect(greenImage, *(edges[i]));
-        times[i][4] = timer.end();
+        // times[i][4] = timer.end();
 
         // Run hough line detection
         hough[i]->run(*(edges[i]), *(rejectedEdges[i]), *(houghLines[i]));
-        times[i][5] = timer.end();
+        // times[i][5] = timer.end();
 
         // Find world coordinates for hough lines
         houghLines[i]->mapToField(*(homography[i]));
-        times[i][6] = timer.end();
+        // times[i][6] = timer.end();
 
-        // Find world coordinates for rejected edges
-        rejectedEdges[i]->mapToField(*(homography[i]));
-        times[i][7] = timer.end();
-
-        // Detect center circle on top
-        if (!i) centerCircleDetector[i]->detectCenterCircle(*(rejectedEdges[i]), *field);
-        times[i][8] = timer.end();
- 
         // Pair hough lines to field lines
         fieldLines[i]->find(*(houghLines[i]), blackStar());
-        times[i][9] = timer.end();
+        // times[i][7] = timer.end();
+
+        // Find world coordinates for rejected edges
+        if (!i && fieldLines[0]->size()) rejectedEdges[i]->mapToField(*(homography[i]));
+        // times[i][8] = timer.end();
+
+        // Detect center circle on top
+        if (!i && fieldLines[0]->size()) centerCircleDetector[i]->detectCenterCircle(*(rejectedEdges[i]), *field);
+        // times[i][9] = timer.end();
 
         // Classify field lines
         fieldLines[i]->classify(*(boxDetector[i]), *(cornerDetector[i]), *(centerCircleDetector[i]));
-        times[i][10] = timer.end();
+        // times[i][10] = timer.end();
 
         ballDetected |= ballDetector[i]->findBall(orangeImage, kinematics[i]->wz0());
-        times[i][11] = timer.end();
+        // times[i][11] = timer.end();
+
 
 #ifdef USE_LOGGING
         logImage(i);
 #endif
     }
+    if (centerCircleDetector[0]->on()) 
+        std::cout << "\n------------------FOUND CENTER CIRCLE -------------------\n";
+    else
+        std::cout << ".";
+
     double topTotal;
     double bottomTotal;
 
-    for (int i = 0; i < 2; i++) {
-        if (i == 0) {
-            topTotal = times[i][0] +
-                       times[i][1] +
-                       times[i][2] +
-                       times[i][3] +
-                       times[i][4] +
-                       times[i][5] +
-                       times[i][6] +
-                       times[i][7] +
-                       times[i][8] +
-                       times[i][9] +
-                       times[i][10] +
-                       times[i][11];
-        } else {
-            bottomTotal = times[i][0] +
-                       times[i][1] +
-                       times[i][2] +
-                       times[i][3] +
-                       times[i][4] +
-                       times[i][5] +
-                       times[i][6] +
-                       times[i][7] +
-                       times[i][8] +
-                       times[i][9] +
-                       times[i][10] +
-                       times[i][11];
-        }
-    }
-
-    if (topTotal + bottomTotal > 16.0) {
-        overrun++;
-        for (int i = 0; i < 2; i++) {
-            if (i == 0) {
-                std::cout << "From top camera:" << std::endl;
-            } else {
-                std::cout << std::endl << "From bottom camera:" << std::endl;
-            }
-            std::cout << "Front end:      " << times[i][0] << std::endl;
-            std::cout << "Homography:     " << times[i][1] << std::endl;
-            std::cout << "Gradient:       " << times[i][2] << std::endl;
-            std::cout << "Field:          " << times[i][3] << std::endl;
-            std::cout << "Edge detection: " << times[i][4] << std::endl;
-            std::cout << "Hough:          " << times[i][5] << std::endl;
-            std::cout << "Hough to world: " << times[i][6] << std::endl;
-            std::cout << "Edges to world: " << times[i][7] << std::endl;
-            std::cout << "CenterCircle:   " << times[i][8] << std::endl;
-            std::cout << "Field lines:    " << times[i][9] << std::endl;
-            std::cout << "FL classify:    " << times[i][10] << std::endl;
-            std::cout << "Ball:           " << times[i][11] << std::endl;
-            std::cout << "Total:          " << (!i ? topTotal : bottomTotal) <<std::endl;
-        }
-        std::cout << std::endl << "TOTAL:          " << topTotal + bottomTotal << " " <<
-        edges[0]->count() << " edges in top. " << overrun <<
-        " total overruns" << std::endl << std::endl;
-    }
+            // topTotal = times[0][0] +
+            //            times[0][1] +
+            //            times[0][2] +
+            //            times[0][3] +
+            //            times[0][4] +
+            //            times[0][5] +
+            //            times[0][6] +
+            //            times[0][7] +
+            //            times[0][8] +
+            //            times[0][9] +
+            //            times[0][10] +
+            //            times[0][11];
+       
     
-
-
+    // for (int i = 0; i < 1; i++) {
+        // if (i == 0) {
+            // std::cout << "\nFrom top camera:" << std::endl;
+        // } else {
+            // std::cout << std::endl << "From bottom camera:" << std::endl;
+        // }
+        // std::cout << "Front end:      " << times[i][0] << std::endl;
+        // std::cout << "Homography:     " << times[i][1] << std::endl;
+        // std::cout << "Gradient:       " << times[i][2] << std::endl;
+        // std::cout << "Field:          " << times[i][3] << std::endl;
+        // std::cout << "Edge detection: " << times[i][4] << std::endl;
+        // std::cout << "Hough:          " << times[i][5] << std::endl;
+        // std::cout << "Hough to world: " << times[i][6] << std::endl;
+        // std::cout << "Field lines:    " << times[i][7] << std::endl;
+        // std::cout << "Edges to world: " << times[i][6] << std::endl;
+        // std::cout << "CenterCircle:   " << times[i][9] << std::endl;
+        // std::cout << "FL classify:    " << times[i][10] << std::endl;
+        // std::cout << "Ball:           " << times[i][11] << std::endl;
+        // std::cout << "Total:          " << (!i ? topTotal : bottomTotal) <<std::endl;
+    // }
+    // std::cout << std::endl << "TOTAL:          " << topTotal + bottomTotal << " " <<
+    // edges[0]->count() << " edges in top." << std::endl << std::endl;
+    
     // Send messages on outportals
     ballOn = ballDetected;
     

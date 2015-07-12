@@ -35,21 +35,6 @@ Edge& Edge::operator=(const Edge& e)
   return *this;
 }
 
-// **********
-// *        *
-// *  Edge  *
-// *        *
-// **********
-
-void Edge::setField(const FieldHomography& h)
-{
-  double wx, wy, dwx, dwy;
-  h.fieldCoords(_x, _y, wx, wy);
-  h.fieldVector(0, 0, sin(), -cos(), dwx, dwy);
-  _field = FieldEdge(wx, wy, atan2(dwy, dwx));
-}
-
-
 // **************
 // *            *
 // *  EdgeList  *
@@ -58,9 +43,57 @@ void Edge::setField(const FieldHomography& h)
 
 void EdgeList::mapToField(const FieldHomography& h)
 {
+  int size = this->count();
+
+  maxEdges = 3000;
+  minEdges = 400;
+
+  // Stop if there aren't enough orphan edges to get a reasonable prediction later on
+  if (count() < minEdges) {
+    reset();
+#ifdef OFFLINE
+    std::cerr << std::endl << "Not enough potentials for center circle: " 
+      << count() << " orphan edges." << std::endl;
+#endif  
+    return;
+  }
+  
+  // Keep track of how mnay edges there are of each angle
+  int binCount[256];
+  std::fill(binCount, binCount + 256, 0);
+
+  // Translate each edge to world coordinates
+  double wx, wy, dwx, dwy;
   AngleBinsIterator<Edge> abi(*this);
-  for (Edge* e = *abi; e; e = *++abi)
-    e->setField(h);
+  for (Edge* e = *abi; e; e = *++abi) {
+    binCount[e->angle()]++;
+    h.fieldCoords(e->x(), e->y(), wx, wy);
+    h.fieldVector(0, 0, e->sin(), -e->cos(), dwx, dwy);
+    e->_field = FieldEdge(wx, wy, atan2(dwy, dwx));
+  }
+
+  // Remove edges edges with similar angles
+  // If there are more than 40 edges with the same angle, its a missed line
+  for (int i = 0; i < 256; i++) {
+    if (binCount[i] > 40) {
+      rejectAngles.push_back(i);
+      size -= binCount[i];
+      binCount[i] = 0;
+    }
+  }
+
+  // Don't include edges of similar angle, until we are below our threshold
+  while (size > maxEdges) {
+    int maxBin, maxAngles;
+    for (int i = 0; i < 256; i++)
+      if (binCount[i] > maxAngles) {
+        maxAngles = binCount[i];
+        maxBin = i;
+      }
+    rejectAngles.push_back(maxBin);
+    size -= binCount[maxBin];
+    binCount[maxBin] = 0;  
+  }
 
   _fx0 = -h.wx0();
   _fy0 = -h.wy0();

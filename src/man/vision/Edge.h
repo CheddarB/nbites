@@ -11,6 +11,7 @@
 #include "Vision.h"
 #include "Homography.h"
 
+#include <vector>
 
 // ******************************************************
 // *                                                    *
@@ -225,8 +226,6 @@ class Edge : public AngleElement
   HoughLine* _memberOf;
   Edge* _nextMember;
 
-  FieldEdge _field;
-
 public:
   // Default constructor leaves members uninitialized so AngleBins can allocate a large
   // pool without having to construct every element. Up to clients to set values.
@@ -258,10 +257,8 @@ public:
   Edge* nextMember() { return _nextMember; }
   void nextMember(Edge* e) { _nextMember = e; }
 
-  FieldEdge field() const { return _field; }
-
-  // Translate edge to field coordinates
-  void setField(const FieldHomography& h);
+  FieldEdge _field;
+  FieldEdge field() { return _field; }
 };
 
 class EdgeList : public AngleBins<Edge>
@@ -269,7 +266,7 @@ class EdgeList : public AngleBins<Edge>
   // No copy/assign
   EdgeList(const EdgeList&);
   EdgeList& operator=(const EdgeList&);
-
+ 
   double _fx0, _fy0;
 
 public:
@@ -281,8 +278,14 @@ public:
     e->set(x, y, mag);
     return e;
   }
-  void mapToField(const FieldHomography&);
 
+  // Functionality for rejected edges used for center circle
+  int maxEdges;
+  int minEdges;
+  std::vector<int> rejectAngles;
+
+  void mapToField(const FieldHomography&);
+  std::vector<int> getRejectedAngles() { return rejectAngles; }
 
   // The field coordinates of the robot at the time mapToField was called.
   double fx0() const { return _fx0; }

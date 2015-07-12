@@ -263,6 +263,7 @@ class CenterCircleDetector
   // For debugging (retreived by nbfunc)
   std::vector<Point> _potentials;
 
+  std::vector<int> rejects;
 
   // Parameters
   int minPotentials;              // Min number of potential edges
@@ -275,6 +276,7 @@ class CenterCircleDetector
   bool findPotentialsAndCluster(EdgeList& edges, double& x0, double& y0);
   bool getMaxBin(const std::vector<Point>& vec, double& x0, double& y0);
   bool onField(Field& field);
+  bool isInRejects(int a); 
   inline int roundDown(int v) { return binWidth*(v/binWidth); }
 
   enum ccconst
@@ -295,7 +297,7 @@ public:
   double y() { return _ccy; }
   bool on() { return _on; }
 
-  void on(bool on) { _on = on; }
+  void on(bool on) { _on = on; set(); }
   void adjustCC(double x, double y);
 
 #ifdef OFFLINE
