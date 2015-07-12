@@ -1222,7 +1222,7 @@ void HoughSpace::adjust(EdgeList& edges, EdgeList& rejectedEdges, HoughLineList&
 
   AngleBinsIterator<Edge> rejectABI(edges);
   for (Edge* e = *rejectABI; e; e = *++rejectABI)
-    if (e->memberOf() == 0) 
+ //   if (e->memberOf() == 0) 
       rejectedEdges.add(e->x(), e->y(), e->mag(), e->angle());
     
   times[4] = timer.time32();

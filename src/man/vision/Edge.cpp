@@ -82,6 +82,8 @@ void EdgeList::mapToField(const FieldHomography& h)
     }
   }
 
+  std::cout << "SIZE = " << size << std::endl;
+
   // Don't include edges of similar angle, until we are below our threshold
   while (size > maxEdges) {
     int maxBin, maxAngles;
