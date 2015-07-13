@@ -448,14 +448,13 @@ int Vision_func() {
     return 0;
 }
 
-messages::YUVImage emptyImageBot1(480 * 2, 320);
-messages::YUVImage emptyImageBot2(160 * 2, 120);
+messages::YUVImage emptyImageTop(640 * 2, 480);
+messages::YUVImage emptyImageBot(320 * 2, 240);
 
 int CameraCalibration_func() {
     printf("CameraCalibrate_func()\n");
     
-  static  man::vision::VisionModule topModule(640, 480);
-  static  man::vision::VisionModule botModule(320, 240);
+  static  man::vision::VisionModule module(640, 480);
 
     int failures = 0;
     double totalR = 0;
@@ -482,7 +481,6 @@ int CameraCalibration_func() {
         
         // Init vision module with offsets of 0.0
         //man::vision::VisionModule module(width / 2, height);
-        man::vision::VisionModule& module = top ? topModule : botModule;
         module.reset();
 
         // Read number of bytes of image, inertials, and joints if exist
@@ -528,17 +526,17 @@ int CameraCalibration_func() {
         if (top) {
             messages::YUVImage image(buf, width, height, width);
             portals::Message<messages::YUVImage> imageMessage(&image);
-            portals::Message<messages::YUVImage> emptyImage(&emptyImageBot1);
+            portals::Message<messages::YUVImage> emptyImage(&emptyImageBot);
             
             module.topIn.setMessage(imageMessage);
             module.bottomIn.setMessage(emptyImage);
         } else {
             messages::YUVImage image(buf, width, height, width);
             portals::Message<messages::YUVImage> imageMessage(&image);
-            portals::Message<messages::YUVImage> emptyImage(&emptyImageBot2);
+            portals::Message<messages::YUVImage> emptyImage(&emptyImageTop);
             
-            module.topIn.setMessage(imageMessage);
-            module.bottomIn.setMessage(emptyImage);
+            module.topIn.setMessage(emptyImage);
+            module.bottomIn.setMessage(imageMessage);
         }
         
         // Create messages
