@@ -548,8 +548,8 @@ int CameraCalibration_func() {
         
         // Create messages
 //        messages::YUVImage image(buf, width, height, width);
-        portals::Message<messages::YUVImage> imageMessage(&image);
-        portals::Message<messages::JointAngles> jointsMessage(&joints);
+//        portals::Message<messages::YUVImage> imageMessage(&image);
+//        portals::Message<messages::JointAngles> jointsMessage(&joints);
 
 //        module.topIn.setMessage(imageMessage);
 //        module.bottomIn.setMessage(imageMessage);
