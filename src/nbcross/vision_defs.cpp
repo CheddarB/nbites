@@ -448,14 +448,14 @@ int Vision_func() {
     return 0;
 }
 
-man::vision::VisionModule topModule(640, 480);
-man::vision::VisionModule botModule(320, 240);
-
 messages::YUVImage emptyImageBot1(480 * 2, 320);
 messages::YUVImage emptyImageBot2(160 * 2, 120);
 
 int CameraCalibration_func() {
     printf("CameraCalibrate_func()\n");
+    
+  static  man::vision::VisionModule topModule(640, 480);
+  static  man::vision::VisionModule botModule(320, 240);
 
     int failures = 0;
     double totalR = 0;
