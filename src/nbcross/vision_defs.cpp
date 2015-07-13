@@ -454,11 +454,6 @@ man::vision::VisionModule botModule(320, 240);
 messages::YUVImage emptyImageBot1(480 * 2, 320);
 messages::YUVImage emptyImageBot2(160 * 2, 120);
 
-// Setup module
-portals::Message<messages::YUVImage> rImageMessage(&realImage);
-portals::Message<messages::YUVImage> eImageMessage(&emptyImage);
-
-
 int CameraCalibration_func() {
     printf("CameraCalibrate_func()\n");
 
