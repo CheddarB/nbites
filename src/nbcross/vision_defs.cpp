@@ -448,6 +448,17 @@ int Vision_func() {
     return 0;
 }
 
+man::vision::VisionModule topModule(640, 480);
+man::vision::VisionModule botModule(320, 240);
+
+messages::YUVImage emptyImageBot1(480 * 2, 320);
+messages::YUVImage emptyImageBot2(160 * 2, 120);
+
+// Setup module
+portals::Message<messages::YUVImage> rImageMessage(&realImage);
+portals::Message<messages::YUVImage> eImageMessage(&emptyImage);
+
+
 int CameraCalibration_func() {
     printf("CameraCalibrate_func()\n");
 
@@ -475,8 +486,9 @@ int CameraCalibration_func() {
         double rollChange, pitchChange;
         
         // Init vision module with offsets of 0.0
-        man::vision::VisionModule module(width / 2, height);
-
+        //man::vision::VisionModule module(width / 2, height);
+        man::vision::VisionModule& module = top ? topModule : botModule;
+        module.reset();
 
         // Read number of bytes of image, inertials, and joints if exist
         int numBytes[3];
@@ -518,14 +530,29 @@ int CameraCalibration_func() {
             std::cout << "\nBLACK STAR TRUE!!!\n\n";
         } else std::cout << "\nBLACK STAR FALSE\n\n";
         
+        if (top) {
+            messages::YUVImage image(buf, width, height, width);
+            portals::Message<messages::YUVImage> imageMessage(&image);
+            portals::Message<messages::YUVImage> emptyImage(&emptyImageBot1);
+            
+            module.topIn.setMessage(imageMessage);
+            module.bottomIn.setMessage(emptyImage);
+        } else {
+            messages::YUVImage image(buf, width, height, width);
+            portals::Message<messages::YUVImage> imageMessage(&image);
+            portals::Message<messages::YUVImage> emptyImage(&emptyImageBot2);
+            
+            module.topIn.setMessage(imageMessage);
+            module.bottomIn.setMessage(emptyImage);
+        }
         
         // Create messages
-        messages::YUVImage image(buf, width, height, width);
+//        messages::YUVImage image(buf, width, height, width);
         portals::Message<messages::YUVImage> imageMessage(&image);
         portals::Message<messages::JointAngles> jointsMessage(&joints);
 
-        module.topIn.setMessage(imageMessage);
-        module.bottomIn.setMessage(imageMessage);
+//        module.topIn.setMessage(imageMessage);
+//        module.bottomIn.setMessage(imageMessage);
         module.jointsIn.setMessage(jointsMessage);
 
         module.run();
