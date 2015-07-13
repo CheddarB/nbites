@@ -117,8 +117,10 @@ VisionModule::~VisionModule()
 {
     for (int i = 0; i < 2; i++) {
         delete colorParams[i];
+//#ifndef OFFLINE
         delete frontEnd[i];
         delete edgeDetector[i];
+//#endif
         delete edges[i];
         delete rejectedEdges[i];
         delete houghLines[i];
@@ -247,7 +249,8 @@ void VisionModule::run_()
         // times[i][8] = timer.end();
 
         // Detect center circle on top
-        if (!i && fieldLines[0]->size()) centerCircleDetector[i]->detectCenterCircle(*(rejectedEdges[i]), *field);
+        if (!i && fieldLines[0]->size() && rejectedEdges[i]->count()) 
+            centerCircleDetector[i]->detectCenterCircle(*(rejectedEdges[i]), *field);
         // times[i][9] = timer.end();
 
         // Classify field lines
@@ -262,10 +265,12 @@ void VisionModule::run_()
         logImage(i);
 #endif
     }
-    if (centerCircleDetector[0]->on()) 
+
+    if (centerCircleDetector[0]->on()) {
         std::cout << "\n------------------FOUND CENTER CIRCLE -------------------\n";
-    else
+    } else {
         std::cout << ".";
+    }
 
     double topTotal;
     double bottomTotal;

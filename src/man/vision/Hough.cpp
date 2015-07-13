@@ -520,10 +520,10 @@ CenterCircleDetector::CenterCircleDetector()
 void CenterCircleDetector::set()
 {
   // Set parameters
-  minPotentials = 900;
+  minPotentials = 500;
   maxEdgeDistanceSquared = 500 * 500;       // Good practicle distance = 5m
   ccr = CENTER_CIRCLE_RADIUS;               // 75 cm
-  minVotesInMaxBin = 0.18;                  // Conservative clustering theshold
+  minVotesInMaxBin = 0.20;                  // Conservative clustering theshold
   fieldTestDistance = 200;
 
 }
@@ -581,7 +581,7 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
 
   if (count < minPotentials) {
 #ifdef OFFLINE
-    std::cout << "Not enough poentials for center circle\n";
+    std::cout << "Not enough potentials for center circle: " << count << "." << std::endl;
 #endif
     return false;
   }
@@ -591,10 +591,9 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
 
   for (int i = 0; i < binCount - 1; i++) {
     for (int j = 0; j < binCount - 1; j++) {
+      // Look at neighbooring bins for overlapping effect
       int neighboorTally = bins[i +  j   *binCount] + bins[i+1 +  j   *binCount] +
                            bins[i + (j+1)*binCount] + bins[i+1 + (j+1)*binCount];
-
-      // Look at neighbooring bins for overlapping effect
       if (neighboorTally > votes) {
         votes = neighboorTally;
         winBin = i + j*binCount;
@@ -603,6 +602,8 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
   }
 
   if (votes > minVotesInMaxBin * count) {
+
+    // Set cc center to middle of the bin
     x0 = (winBin % binCount + 1) * binWidth - xOffset;
     y0 = (winBin / binCount + 1) * binWidth; 
     
@@ -612,9 +613,12 @@ bool CenterCircleDetector::findPotentialsAndCluster(EdgeList& edges, double& x0,
       (double)votes * 100/count << "\% of the " << count << " potentials in most populated bin" << std::endl;
 #endif
     return true;
+    
   } else {
 #ifdef OFFLINE
     _potentials.push_back(Point(0.0, 0.0));
+    std::cout << "CC binning failed: " << (double)votes * 100/count << 
+      "\% of the " << count << " potentials in most populated bin" ;
 #endif
   return false;
   }
@@ -789,10 +793,15 @@ void FieldLineList::classify(GoalboxDetector& boxDetector,
       int i = 0;
       while (i < startSize) {
         FieldLine* fl = &(*this)[i];
+
         // Loop through lines and it is likely to be a center circle false line, erase it
-        if (fl->id() != LineID::Midline && fl->maxLength() < 50 &&
-            fabs((*fl)[0].field().pDist(circleDetector.x(), circleDetector.y())) < 100)
+        if (fl->id() != LineID::Midline && fl->maxLength() < 75 &&
+            fabs((*fl)[0].field().pDist(circleDetector.x(), circleDetector.y())) < 100) {
           this->erase(this->begin() + i);
+#ifdef OFFLINE
+          std::cout << "Discarding fieldline supposedly on center circle." << std::endl;
+#endif
+        }
         i++;
       }
     } else {

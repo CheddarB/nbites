@@ -246,10 +246,10 @@ int Vision_func() {
     //  EDGES
     //-------------------
 
-    man::vision::EdgeList* edgeList = module.getEdges(topCamera);
+    // man::vision::EdgeList* edgeList = module.getEdges(topCamera);
     
     // Uncomment to display rejected edges used in center detection
-    // man::vision::EdgeList* edgeList = module.getRejectedEdges(topCamera);
+    man::vision::EdgeList* edgeList = module.getRejectedEdges(topCamera);
 
     Log* edgeRet = new Log();
     std::string edgeBuf;
