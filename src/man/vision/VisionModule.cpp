@@ -283,7 +283,7 @@ void VisionModule::run_()
 
         PROF_EXIT2(P_VISION_TOP, P_VISION_BOT, i==0)
 #ifdef USE_LOGGING
-        if (cornerDetector[i]->size() > 0)
+        if (cornerDetector[i]->size() == 0)
             logImage(i);
 #endif
     }
