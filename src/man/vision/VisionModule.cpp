@@ -336,7 +336,7 @@ void VisionModule::run_()
     updateObstacleBox();
 
 #ifdef USE_LOGGING
-    if (obstacleBox[0] != -1)
+    if (obstacleBox[0] == -1)
         logImage(1);
 #endif
 
