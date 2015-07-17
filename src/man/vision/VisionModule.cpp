@@ -282,10 +282,6 @@ void VisionModule::run_()
         times[i][11] = timer.end();
 
         PROF_EXIT2(P_VISION_TOP, P_VISION_BOT, i==0)
-#ifdef USE_LOGGING
-        if (centerCircleDetector[i]->on())
-            logImage(i);
-#endif
     }
     double topTotal;
     double botTotal;
@@ -338,6 +334,11 @@ void VisionModule::run_()
 
     PROF_ENTER(P_OBSTACLE)
     updateObstacleBox();
+
+#ifdef USE_LOGGING
+    if (obstacleBox[0] != -1)
+        logImage(1);
+#endif
 
     PROF_EXIT(P_OBSTACLE)
 
