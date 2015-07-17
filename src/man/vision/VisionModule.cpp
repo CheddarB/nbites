@@ -292,7 +292,7 @@ void VisionModule::run_()
 
         PROF_EXIT2(P_VISION_TOP, P_VISION_BOT, i==0)
 #ifdef USE_LOGGING
-        if ((!i && topBall) || (i && botBall))
+        if (i && !botBall)
             logImage(i);
 #endif
     }
