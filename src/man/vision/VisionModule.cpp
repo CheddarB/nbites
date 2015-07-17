@@ -154,6 +154,9 @@ void VisionModule::run_()
 
     bool ballDetected = false;
 
+    // For conditional logging
+    bool topBall = false;
+    bool botBall = false;
 
     // Time vision module
     double topTimes[12];
@@ -277,19 +280,19 @@ void VisionModule::run_()
         times[i][10] = timer.end();
 
         PROF_ENTER2(P_BALL_TOP, P_BALL_BOT, i==0)
-        ballDetected |= ballDetector[i]->findBall(orangeImage, kinematics[i]->wz0());
+        if (!i)
+            topBall = ballDetector[i]->findBall(orangeImage, kinematics[i]->wz0());
+        else
+            botBall = ballDetector[i]->findBall(orangeImage, kinematics[i]->wz0());
+
+        ballOn = topBall || botBall;
+
         PROF_EXIT2(P_BALL_TOP, P_BALL_BOT, i==0)
         times[i][11] = timer.end();
 
         PROF_EXIT2(P_VISION_TOP, P_VISION_BOT, i==0)
 #ifdef USE_LOGGING
-        bool logIt = true;
-        for (int j = 0; j < fieldLines[i]->size(); j++)
-            if ((*(fieldLines[i]))[j].id() == LineID::TopGoalboxOrSideGoalbox) {
-                logIt = false;
-                break;
-            }
-        if (logIt)
+        if ((!i && topBall) || (i && botBall))
             logImage(i);
 #endif
     }
