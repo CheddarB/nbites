@@ -283,10 +283,10 @@ void VisionModule::run_()
 
         PROF_EXIT2(P_VISION_TOP, P_VISION_BOT, i==0)
 #ifdef USE_LOGGING
-        bool logIt = false;
+        bool logIt = true;
         for (int j = 0; j < fieldLines[i]->size(); j++)
             if ((*(fieldLines[i]))[j].id() == LineID::TopGoalboxOrSideGoalbox) {
-                logIt = true;
+                logIt = false;
                 break;
             }
         if (logIt)
