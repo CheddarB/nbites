@@ -632,13 +632,13 @@ bool CenterCircleDetector::getMaxBin(std::vector<Point> vec, double& x0, double&
       y0 = (winBin / binCount) * binWidth; 
     }
 
-    std::cout << std::endl << "Center Circle at (" << x0 << "," << y0 << "). " << 
-      (double)votes * 100/(double)vec.size() << "\% of the " << 
-      vec.size() << " potentials in most populated bin" << std::endl;
+    // std::cout << std::endl << "Center Circle at (" << x0 << "," << y0 << "). " << 
+    //   (double)votes * 100/(double)vec.size() << "\% of the " << 
+    //   vec.size() << " potentials in most populated bin" << std::endl;
 
     return true;
   } else {
-    std::cout << std::endl << "Can't find center circle: " << (double)votes * 100/(double)vec.size() << "\% in max bin" << std::endl;
+    // std::cout << std::endl << "Can't find center circle: " << (double)votes * 100/(double)vec.size() << "\% in max bin" << std::endl;
 
   }
 

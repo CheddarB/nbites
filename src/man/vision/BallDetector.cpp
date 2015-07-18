@@ -43,7 +43,7 @@ bool BallDetector::findBall(ImageLiteU8 orange, double cameraHeight)
         // This blob is above the horizon. Can't be a ball
         if (!belowHoriz) {
 #ifdef OFFLINE
-            std::cout << "BLOB's above horizon:" << std::endl;
+            // std::cout << "BLOB's above horizon:" << std::endl;
 #endif
             continue;
         }

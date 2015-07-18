@@ -470,8 +470,7 @@ int CameraCalibration_func() {
         std::vector<SExpr*> blackStarVec = args[0]->tree().recursiveFind("BlackStar");
         if (blackStarVec.size() != 0) {
             module.blackStar(true);
-            std::cout << "\nBLACK STAR TRUE!!!\n\n";
-        } else std::cout << "\nBLACK STAR FALSE\n\n";
+        }
         
         
         // Create messages
@@ -492,6 +491,7 @@ int CameraCalibration_func() {
         rollBefore = fh->roll();
         tiltBefore = fh->tilt();
 
+        std::cout << "Attempting to calibrate log " << i << ":" << std::endl;
         bool success = fh->calibrateFromStar(*module.getFieldLines(top));
 
         if (!success) {
@@ -504,11 +504,13 @@ int CameraCalibration_func() {
         }
     }
 
-    if (failures > 4) {
+    if (failures > 3) {
         // Handle failure
-        printf("FAILED: %d times\n", failures);
+        printf("\nCalibration failed too many times (%d)\n", failures);
         rets.push_back(new Log("(failure)"));
     } else {
+        printf("\nCalibration successful (%d)\n", 7 - failures);
+
         totalR /= (args.size() - failures);
         totalT /= (args.size() - failures);
 

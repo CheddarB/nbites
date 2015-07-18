@@ -316,15 +316,31 @@ bool FieldHomography::calibrateFromStar(const FieldLineList& lines)
 
 bool StarCal::add(const FieldLineList& lines)
 {
+  std::cout << "  | Testing " << (int)lines.size() << " field lines." << std::endl;
   for (int i = 0; i < (int)lines.size(); ++i)
   {
     double vpx, vpy;
-    if (lines[i][0].intersect(lines[i][1], vpx, vpy) && fabs(lines[i][0].ux()) > 0.3)
-      fit.add(vpx - ix0, vpy - iy0);  // relative to optical axis
+    if (lines[i][0].intersect(lines[i][1], vpx, vpy)) {
+      if (fabs(lines[i][0].ux()) > 0.3) {
+        std::cout << "  |   Acceptable field line found." << std::endl;
+        fit.add(vpx - ix0, vpy - iy0);  // relative to optical axis
+      } else {
+        std::cout << "  |   Rejected field line (too horizontal)." << std::endl;
+      }
+    } else {
+      std::cout << "  |   Rejected field line (intersect)." << std::endl;
+    }
   }
 
   // If we didn't find exactly three suitable field lines, fail
-  return fit.area() == 3;
+  if (fit.area() == 3) {
+    std::cout << "  | Image passed." << std::endl << std::endl;
+    return true;
+  } else {
+    std::cout << "  | Image failed (" << fit.area() << ")." << std::endl << std::endl;
+    return false;
+  }
+  
 }
 
 double StarCal::roll()
