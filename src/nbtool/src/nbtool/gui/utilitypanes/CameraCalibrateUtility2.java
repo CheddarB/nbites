@@ -116,6 +116,8 @@ public class CameraCalibrateUtility2 extends UtilityParent {
 		                }
 		                SExpr saved = SExpr.deserializeFrom(text);
 		                SExpr bot = saved.get(1).find(lastCalculated.robotName);
+
+
 		                if (!bot.exists()) {
 		                    System.out.printf("Invalid robot name! Could not find exiting params for \"%s\"\n",
 		                    		lastCalculated.robotName);
@@ -186,6 +188,9 @@ public class CameraCalibrateUtility2 extends UtilityParent {
                     if (iloc > 0) {
                     	rname = rname.substring(0, iloc);
                     }
+                    
+                    if (rname.equals("she-hulk"))
+                    	rname = "shehulk";
                     
                     lastCalculated = new Params(cameraString, rname);
 
